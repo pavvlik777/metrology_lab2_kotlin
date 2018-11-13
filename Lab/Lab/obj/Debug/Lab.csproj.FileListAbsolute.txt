@@ -1,0 +1,10 @@
+E:\Projects\metrology_lab2_kotlin\Lab\Lab\bin\Debug\Lab.exe.config
+E:\Projects\metrology_lab2_kotlin\Lab\Lab\bin\Debug\Lab.exe
+E:\Projects\metrology_lab2_kotlin\Lab\Lab\bin\Debug\Lab.pdb
+E:\Projects\metrology_lab2_kotlin\Lab\Lab\obj\Debug\Lab.csprojAssemblyReference.cache
+E:\Projects\metrology_lab2_kotlin\Lab\Lab\obj\Debug\Lab.Form1.resources
+E:\Projects\metrology_lab2_kotlin\Lab\Lab\obj\Debug\Lab.Properties.Resources.resources
+E:\Projects\metrology_lab2_kotlin\Lab\Lab\obj\Debug\Lab.csproj.GenerateResource.cache
+E:\Projects\metrology_lab2_kotlin\Lab\Lab\obj\Debug\Lab.csproj.CoreCompileInputs.cache
+E:\Projects\metrology_lab2_kotlin\Lab\Lab\obj\Debug\Lab.exe
+E:\Projects\metrology_lab2_kotlin\Lab\Lab\obj\Debug\Lab.pdb

@@ -28,13 +28,93 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.OpenFileButton = new System.Windows.Forms.Button();
+            this.AbsolDiffButton = new System.Windows.Forms.Button();
+            this.RelatDiffButton = new System.Windows.Forms.Button();
+            this.MaxNesting = new System.Windows.Forms.Button();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.FileCodeTextBox = new System.Windows.Forms.TextBox();
+            this.SuspendLayout();
+            // 
+            // OpenFileButton
+            // 
+            this.OpenFileButton.Location = new System.Drawing.Point(95, 13);
+            this.OpenFileButton.Name = "OpenFileButton";
+            this.OpenFileButton.Size = new System.Drawing.Size(139, 23);
+            this.OpenFileButton.TabIndex = 0;
+            this.OpenFileButton.Text = "Открыть файл";
+            this.OpenFileButton.UseVisualStyleBackColor = true;
+            this.OpenFileButton.Click += new System.EventHandler(this.OpenFileButton_Click);
+            // 
+            // AbsolDiffButton
+            // 
+            this.AbsolDiffButton.Location = new System.Drawing.Point(283, 13);
+            this.AbsolDiffButton.Name = "AbsolDiffButton";
+            this.AbsolDiffButton.Size = new System.Drawing.Size(198, 23);
+            this.AbsolDiffButton.TabIndex = 1;
+            this.AbsolDiffButton.Text = "Абсолютная сложность";
+            this.AbsolDiffButton.UseVisualStyleBackColor = true;
+            this.AbsolDiffButton.Click += new System.EventHandler(this.AbsolDiffButton_Click);
+            // 
+            // RelatDiffButton
+            // 
+            this.RelatDiffButton.Location = new System.Drawing.Point(508, 13);
+            this.RelatDiffButton.Name = "RelatDiffButton";
+            this.RelatDiffButton.Size = new System.Drawing.Size(182, 23);
+            this.RelatDiffButton.TabIndex = 2;
+            this.RelatDiffButton.Text = "Относительная сложность";
+            this.RelatDiffButton.UseVisualStyleBackColor = true;
+            this.RelatDiffButton.Click += new System.EventHandler(this.RelatDiffButton_Click);
+            // 
+            // MaxNesting
+            // 
+            this.MaxNesting.Location = new System.Drawing.Point(715, 13);
+            this.MaxNesting.Name = "MaxNesting";
+            this.MaxNesting.Size = new System.Drawing.Size(172, 23);
+            this.MaxNesting.TabIndex = 3;
+            this.MaxNesting.Text = "Максимальная вложенность";
+            this.MaxNesting.UseVisualStyleBackColor = true;
+            this.MaxNesting.Click += new System.EventHandler(this.MaxNesting_Click);
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "openFileDialog1";
+            // 
+            // FileCodeTextBox
+            // 
+            this.FileCodeTextBox.Location = new System.Drawing.Point(95, 68);
+            this.FileCodeTextBox.Multiline = true;
+            this.FileCodeTextBox.Name = "FileCodeTextBox";
+            this.FileCodeTextBox.ReadOnly = true;
+            this.FileCodeTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.FileCodeTextBox.Size = new System.Drawing.Size(610, 475);
+            this.FileCodeTextBox.TabIndex = 5;
+            // 
+            // Form1
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1492, 611);
+            this.Controls.Add(this.FileCodeTextBox);
+            this.Controls.Add(this.MaxNesting);
+            this.Controls.Add(this.RelatDiffButton);
+            this.Controls.Add(this.AbsolDiffButton);
+            this.Controls.Add(this.OpenFileButton);
+            this.Name = "Form1";
             this.Text = "Form1";
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         #endregion
+
+        private System.Windows.Forms.Button OpenFileButton;
+        private System.Windows.Forms.Button AbsolDiffButton;
+        private System.Windows.Forms.Button RelatDiffButton;
+        private System.Windows.Forms.Button MaxNesting;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private System.Windows.Forms.TextBox FileCodeTextBox;
     }
 }
 
