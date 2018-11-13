@@ -16,21 +16,37 @@ namespace Lab
             fileCode = new List<string>() { };
         }
 
+        bool multilineComment = false;
         public string FixFileCode(string readPath)
         {
-            string test = "";
+            string filecodeText = "";
             using (StreamReader sr = File.OpenText(readPath))
             {
                 string cur;
                 while ((cur = sr.ReadLine()) != null)
                 {
-                    InputTestLine(ref test, cur);
+                    InputTestLine(ref filecodeText, cur);
                 }
             }
-            return test;
+            CreateFilecodeList(filecodeText);
+            return filecodeText;
         }
 
-        void InputTestLine(ref string test, string cur)
+        void CreateFilecodeList(string filecodeText)
+        {
+            int index = filecodeText.IndexOf("\r\n");
+            if (index != -1)
+            {
+                fileCode.Add(filecodeText.Substring(0, index));
+                CreateFilecodeList(filecodeText.Substring(index + 2));
+            }
+            else
+            {
+                fileCode.Add(filecodeText);
+            }
+        }
+
+        void InputTestLine(ref string filecodeText, string cur)
         {
             string line = cur;
             while (line.Length != 0)
@@ -44,13 +60,47 @@ namespace Lab
             int separatorPos = line.IndexOf(';');
             if (separatorPos != -1 && separatorPos != line.Length - 1)
             {
-                InputTestLine(ref test, line.Substring(0, separatorPos + 1));
-                InputTestLine(ref test, line.Substring(separatorPos + 1));
+                InputTestLine(ref filecodeText, line.Substring(0, separatorPos + 1));
+                InputTestLine(ref filecodeText, line.Substring(separatorPos + 1));
+                return;
             }
-            else if (!string.IsNullOrWhiteSpace(line))
+            int singlelineComment = line.IndexOf("//");
+            if(singlelineComment != -1)
             {
-                fileCode.Add(line);
-                test += $"{line}\r\n";
+                line = line.Substring(0, singlelineComment);
+            }
+            line += "\r\n";
+            if (!multilineComment)
+            {
+                int multilineCommentStart = line.IndexOf("/*");
+                if (multilineCommentStart != -1)
+                {
+                    int multilineCommentEnd = line.LastIndexOf("*/");
+                    if (multilineCommentEnd != -1 && multilineCommentEnd != multilineCommentStart + 1)
+                    {
+                        line = line.Remove(multilineCommentStart, multilineCommentEnd - multilineCommentStart + 2);
+                    }
+                    else if(multilineCommentEnd != multilineCommentStart + 1)
+                    {
+                        multilineComment = true;
+                        line = line.Remove(multilineCommentStart);
+                    }
+                }
+            }
+            else
+            {
+                int endMultilineComment = line.LastIndexOf("*/");
+                if (endMultilineComment != -1)
+                {
+                    line = line.Substring(endMultilineComment + 2);
+                    multilineComment = false;
+                }
+                else return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(line))
+            {
+                filecodeText += line;
             }
         }
     }
