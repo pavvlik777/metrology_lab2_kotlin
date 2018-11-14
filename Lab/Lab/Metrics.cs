@@ -4,16 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Lab
 {
     public class Metrics
     {
         List<string> fileCode;
+        string FilecodeText;
 
         public Metrics()
         {
             fileCode = new List<string>() { };
+            FilecodeText = "";
         }
 
         bool multilineComment = false;
@@ -29,7 +32,114 @@ namespace Lab
                 }
             }
             CreateFilecodeList(filecodeText);
+            FilecodeText = filecodeText;
+            SolveTask(filecodeText);
             return filecodeText;
+        }
+
+        public void SolveTask(string filecodeText)
+        {
+            string temp;
+            int i;
+            //if( )
+            Regex ifPattern = new Regex(@"\bif(\s)*[(]{1}");
+            Match ifMatch = ifPattern.Match(filecodeText);
+            if (ifMatch.Success)
+            {
+                temp = ifMatch.Value;
+                int leftParentess = 1;
+                int rightParentess = 0;
+                i = ifMatch.Index + temp.Length;
+                bool parentessMatch = true;
+                while(leftParentess != rightParentess)
+                {
+                    if (filecodeText[i] == '\r')
+                    {
+                        parentessMatch = false;
+                        break;
+                    }
+                    if (filecodeText[i] == '(') leftParentess++;
+                    if (filecodeText[i] == ')') rightParentess++;
+                    i++;
+                }
+
+                if (parentessMatch)
+                {
+                    int findStart = i;
+                    bool figureParentessIfStart = false;
+                    while(filecodeText[i] == '\r' || filecodeText[i] == '\n' || filecodeText[i] == ' ' || filecodeText[i] == '\t' || filecodeText[i] == '{')
+                    {
+                        if (filecodeText[i] == '{')
+                            figureParentessIfStart = true;
+                        i++;
+                    }
+                    //if( ) { }
+                    string IfLine = "";
+                    int IfStart = i;
+                    if (figureParentessIfStart)
+                    {
+                        int figureParentIfLeft = 1;
+                        int figureParentIfRight = 0;
+                        while(figureParentIfLeft != figureParentIfRight)
+                        {
+                            if (filecodeText[i] == '{') figureParentIfLeft++;
+                            if (filecodeText[i] == '}') figureParentIfRight++;
+                            i++;
+                        }
+                        i--;
+                        IfLine = filecodeText.Substring(IfStart, i - IfStart);
+                    }
+                    //if( )
+                    else
+                    {
+                        while (filecodeText[i] != '\r')
+                            i++;
+                        i += 2;
+                        IfLine = filecodeText.Substring(IfStart, i - IfStart);
+                    }
+                }
+                //else
+                int findStartElse = i;
+                Regex elsePattern = new Regex(@"\belse\b");
+                Match elseMatch = elsePattern.Match(filecodeText, findStartElse);
+                if (elseMatch.Success)
+                {
+                    temp = elseMatch.Value;
+                    i = elseMatch.Index + temp.Length;
+                    bool figureParentessElseStart = false;
+                    while (filecodeText[i] == '\r' || filecodeText[i] == '\n' || filecodeText[i] == ' ' || filecodeText[i] == '\t' || filecodeText[i] == '{')
+                    {
+                        if (filecodeText[i] == '{')
+                            figureParentessElseStart = true;
+                        i++;
+                    }
+                    //else { }
+                    string ElseLine = "";
+                    int ElseStart = i;
+                    if (figureParentessElseStart)
+                    {
+                        int figureParenElseLeft = 1;
+                        int figureParentElseRight = 0;
+                        while (figureParenElseLeft != figureParentElseRight)
+                        {
+                            if (filecodeText[i] == '{') figureParenElseLeft++;
+                            if (filecodeText[i] == '}') figureParentElseRight++;
+                            i++;
+                        }
+                        i--;
+                        ElseLine = filecodeText.Substring(ElseStart, i - ElseStart);
+                    }
+                    //else
+                    else
+                    {
+                        while (filecodeText[i] != '\r')
+                            i++;
+                        i += 2;
+                        ElseLine = filecodeText.Substring(ElseStart, i - ElseStart);
+                    }
+                }
+            }
+            int a = 5;
         }
 
         void CreateFilecodeList(string filecodeText)
