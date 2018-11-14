@@ -20,6 +20,7 @@ namespace Lab
         }
 
         bool multilineComment = false;
+        int maxLevel = -1;
         public string FixFileCode(string readPath)
         {
             string filecodeText = "";
@@ -33,25 +34,39 @@ namespace Lab
             }
             CreateFilecodeList(filecodeText);
             FilecodeText = filecodeText;
-            SolveTask(filecodeText);
+            RemoveDoWhileOperators(ref filecodeText);
+            RemoveOneLineOperators(ref filecodeText);
+            //SolveTask(ref filecodeText, -1);
+            if (maxLevel == -1) maxLevel = 0;
             return filecodeText;
         }
-
-        public void SolveTask(string filecodeText)
+        
+        void RemoveOneLineOperators(ref string filecodeText)
         {
-            string temp;
+
+        }
+
+        void RemoveDoWhileOperators(ref string filecodeText)
+        {
+
+        }
+
+        public void SolveTask(ref string filecodeText, int level)
+        {
+            if (level > maxLevel) maxLevel = level;
             int i;
-            //if( )
-            Regex ifPattern = new Regex(@"\bif(\s)*[(]{1}");
-            Match ifMatch = ifPattern.Match(filecodeText);
+            string closestPattern = ClosestPattern(filecodeText);
+            if (closestPattern == "None") return;
+            Regex IfPattern = new Regex(closestPattern);
+            Match ifMatch = IfPattern.Match(filecodeText);
             if (ifMatch.Success)
             {
-                temp = ifMatch.Value;
+                string temp = ifMatch.Value;
                 int leftParentess = 1;
                 int rightParentess = 0;
                 i = ifMatch.Index + temp.Length;
                 bool parentessMatch = true;
-                while(leftParentess != rightParentess)
+                while (leftParentess != rightParentess)
                 {
                     if (filecodeText[i] == '\r')
                     {
@@ -63,83 +78,74 @@ namespace Lab
                     i++;
                 }
 
+                int ifBlockStart = i;
+                int ifBlockEnd = i;
                 if (parentessMatch)
                 {
-                    int findStart = i;
-                    bool figureParentessIfStart = false;
-                    while(filecodeText[i] == '\r' || filecodeText[i] == '\n' || filecodeText[i] == ' ' || filecodeText[i] == '\t' || filecodeText[i] == '{')
-                    {
-                        if (filecodeText[i] == '{')
-                            figureParentessIfStart = true;
-                        i++;
-                    }
-                    //if( ) { }
-                    string IfLine = "";
-                    int IfStart = i;
-                    if (figureParentessIfStart)
-                    {
-                        int figureParentIfLeft = 1;
-                        int figureParentIfRight = 0;
-                        while(figureParentIfLeft != figureParentIfRight)
-                        {
-                            if (filecodeText[i] == '{') figureParentIfLeft++;
-                            if (filecodeText[i] == '}') figureParentIfRight++;
-                            i++;
-                        }
-                        i--;
-                        IfLine = filecodeText.Substring(IfStart, i - IfStart);
-                    }
-                    //if( )
-                    else
-                    {
-                        while (filecodeText[i] != '\r')
-                            i++;
-                        i += 2;
-                        IfLine = filecodeText.Substring(IfStart, i - IfStart);
-                    }
-                }
-                //else
-                int findStartElse = i;
-                Regex elsePattern = new Regex(@"\belse\b");
-                Match elseMatch = elsePattern.Match(filecodeText, findStartElse);
-                if (elseMatch.Success)
-                {
-                    temp = elseMatch.Value;
-                    i = elseMatch.Index + temp.Length;
-                    bool figureParentessElseStart = false;
                     while (filecodeText[i] == '\r' || filecodeText[i] == '\n' || filecodeText[i] == ' ' || filecodeText[i] == '\t' || filecodeText[i] == '{')
                     {
                         if (filecodeText[i] == '{')
-                            figureParentessElseStart = true;
+                            break;
                         i++;
                     }
-                    //else { }
-                    string ElseLine = "";
-                    int ElseStart = i;
-                    if (figureParentessElseStart)
+                    i++;
+                    ifBlockStart = i;
+                    int figureParentIfLeft = 1;
+                    int figureParentIfRight = 0;
+                    while (figureParentIfLeft != figureParentIfRight)
                     {
-                        int figureParenElseLeft = 1;
-                        int figureParentElseRight = 0;
-                        while (figureParenElseLeft != figureParentElseRight)
-                        {
-                            if (filecodeText[i] == '{') figureParenElseLeft++;
-                            if (filecodeText[i] == '}') figureParentElseRight++;
-                            i++;
-                        }
-                        i--;
-                        ElseLine = filecodeText.Substring(ElseStart, i - ElseStart);
+                        if (filecodeText[i] == '{') figureParentIfLeft++;
+                        if (filecodeText[i] == '}') figureParentIfRight++;
+                        i++;
                     }
-                    //else
-                    else
-                    {
-                        while (filecodeText[i] != '\r')
-                            i++;
-                        i += 2;
-                        ElseLine = filecodeText.Substring(ElseStart, i - ElseStart);
-                    }
+                    i--;
+                    ifBlockEnd = i;
+                    string IfLine = filecodeText.Substring(ifBlockStart, ifBlockEnd - ifBlockStart);
+                    SolveTask(ref IfLine, level + 1);
+                }
+                string notIfPart = filecodeText.Substring(ifBlockEnd + 1);
+                SolveTask(ref notIfPart, level);
+            }
+
+
+            int a = 5;
+        }
+
+        string ClosestPattern(string filecodeText)
+        {
+            int i = filecodeText.Length + 1;
+            string output = "None";
+            Regex ifPattern = new Regex(@"\bif(\s)*[(]{1}");
+            Match match = ifPattern.Match(filecodeText);
+            if (match.Success)
+            {
+                if(i > match.Index)
+                {
+                    i = match.Index;
+                    output = @"\bif(\s)*[(]{1}";
                 }
             }
-            int a = 5;
+            Regex forPattern = new Regex(@"\bfor(\s)*[(]{1}");
+            match = forPattern.Match(filecodeText);
+            if (match.Success)
+            {
+                if (i > match.Index)
+                {
+                    i = match.Index;
+                    output = @"\bfor(\s)*[(]{1}";
+                }
+            }
+            Regex whilePattern = new Regex(@"\bwhile(\s)*[(]{1}");
+            match = whilePattern.Match(filecodeText);
+            if (match.Success)
+            {
+                if (i > match.Index)
+                {
+                    i = match.Index;
+                    output = @"\bwhile(\s)*[(]{1}";
+                }
+            }
+            return output;
         }
 
         void CreateFilecodeList(string filecodeText)
