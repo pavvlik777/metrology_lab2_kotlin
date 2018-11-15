@@ -32,31 +32,180 @@ namespace Lab
                     InputTestLine(ref filecodeText, cur);
                 }
             }
+            filecodeText += "\r\n";
             CreateFilecodeList(filecodeText);
             FilecodeText = filecodeText;
+            ReplaceWhenElse(ref filecodeText, true);
+
+            RemoveOneLineOperators(ref filecodeText);
+            ReplaceWhenElse(ref filecodeText, false);
+
             while (RemoveElseFromIfOperators(ref filecodeText)) ;
             while (RemoveDoWhileOperators(ref filecodeText));
-            RemoveOneLineOperators(ref filecodeText);
-            SolveTask(ref filecodeText, -1);
+            //SolveTask(ref filecodeText, -1);
             if (maxLevel == -1) maxLevel = 0;
             return filecodeText;
         }
-        
-        void RemoveOneLineOperators(ref string filecodeText)
-        {
 
+        void ReplaceWhenElse(ref string filecodeText, bool mode)
+        {
+            if(mode)
+            {
+                Regex pattern = new Regex(@"\belse(\s)+->");
+                filecodeText = pattern.Replace(filecodeText, "felse ->");
+            }
+            else
+            {
+                Regex pattern = new Regex(@"\bfelse(\s)+->");
+                filecodeText = pattern.Replace(filecodeText, "else ->");
+            }
+        }
+
+        void FixOneLineOperator(ref string line)
+        {
+            line = line.Insert(0, "{\r\n");
+            line = line.Insert(line.Length, "}\r\n");
+        }
+
+        (bool, int) IsThisOperatorOneLine(ref string line, int operatorEnd)
+        {
+            int i = operatorEnd;
+            while(line[i] == ' ' || line[i] == '\t' || line[i] == '\r' || line[i] == '\n' || line[i] == '{')
+            {
+                if (line[i] == '{')
+                {
+                    return (false, i);
+                }
+                i++;
+            }
+            return (true , i);
+        }
+
+        (string, bool) GetClosestPatternForOneLine(string filecodeText)
+        {
+            string output = "None";
+            bool IsWithParentess = false;
+            int i = filecodeText.Length;
+            string[] patterns1 = { @"\bif(\s)*[(]{1}", @"\bfor(\s)*[(]{1}", @"\bwhile(\s)*[(]{1}", @"\bwhen(\s)*[(]{1}" };
+            string[] patterns2 = { @"->", @"\bdo\b", @"\belse\b"};
+            for (int j = 0; j < patterns1.Length; j++)
+            {
+                Regex pattern = new Regex(patterns1[j]);
+                Match match = pattern.Match(filecodeText);
+                if (match.Success)
+                {
+                    if (i > match.Index)
+                    {
+                        i = match.Index;
+                        output = patterns1[j];
+                        IsWithParentess = true;
+                    }
+                }
+            }
+            for (int j = 0; j < patterns2.Length; j++)
+            {
+                Regex pattern = new Regex(patterns2[j]);
+                Match match = pattern.Match(filecodeText);
+                if (match.Success)
+                {
+                    if (i > match.Index)
+                    {
+                        i = match.Index;
+                        output = patterns2[j];
+                        IsWithParentess = false;
+                    }
+                }
+            }
+            return (output, IsWithParentess);
+        }
+        
+        void RemoveOneLineOperators(ref string filecodeText) //if() else ситуацию рассмотреть отдельно
+        {
+            (string pattern, bool isNeedParentess) data = GetClosestPatternForOneLine(filecodeText);
+            Regex pattern = new Regex(data.pattern);
+            Match cur = pattern.Match(filecodeText);
+
+            if(cur.Success)
+            {
+                string temp = cur.Value;
+                int i = cur.Index + temp.Length;
+                if(data.isNeedParentess)
+                {
+                    int leftParentess = 1;
+                    int rightParentess = 0;
+                    while (leftParentess != rightParentess)
+                    {
+                        if (filecodeText[i] == '(') leftParentess++;
+                        if (filecodeText[i] == ')') rightParentess++;
+                        i++;
+                    }
+                }
+                int operatorEnd = i;
+                int posForClose = i;
+                (bool, int) dataOneline = IsThisOperatorOneLine(ref filecodeText, i);
+                if (dataOneline.Item1)
+                {
+                    i = dataOneline.Item2;
+                    while (true)
+                    {
+                        int startLine = i;
+                        while (filecodeText[i] != '\n') i++;
+                        i++;
+                        int endLine = i;
+                        string line = filecodeText.Substring(startLine, endLine - startLine);
+                        (string pattern, bool isNeedParentess) onelineData = GetClosestPatternForOneLine(line);
+                        if (onelineData.pattern == "None")
+                        {
+                            posForClose = endLine;
+                            break;
+                        }
+                        else
+                        {
+                            i++;
+                        }
+                    }
+                    filecodeText = filecodeText.Insert(operatorEnd, "\r\n{");
+                    operatorEnd += 3;
+                    filecodeText = filecodeText.Insert(posForClose + 1, "\r\n}");
+
+                    while (filecodeText[operatorEnd] == '\r' || filecodeText[operatorEnd] == '\n' || filecodeText[operatorEnd] == ' ' || filecodeText[operatorEnd] == '\t') operatorEnd++;
+
+                    string otherLine = filecodeText.Substring(operatorEnd, posForClose + 3 - operatorEnd);
+                    int tempLength = otherLine.Length;
+                    RemoveOneLineOperators(ref otherLine);
+                    filecodeText = filecodeText.Remove(operatorEnd, tempLength);
+                    filecodeText = filecodeText.Insert(operatorEnd, otherLine);
+
+                    operatorEnd += otherLine.Length;
+                    otherLine = filecodeText.Substring(operatorEnd);
+                    tempLength = otherLine.Length;
+                    RemoveOneLineOperators(ref otherLine);
+                    filecodeText = filecodeText.Remove(operatorEnd, tempLength);
+                    filecodeText = filecodeText.Insert(operatorEnd, otherLine);
+                }
+                else
+                {
+                    string otherLine = filecodeText.Substring(operatorEnd);
+                    RemoveOneLineOperators(ref otherLine);
+                    filecodeText = filecodeText.Remove(operatorEnd);
+                    filecodeText = filecodeText.Insert(operatorEnd, otherLine);
+                }
+
+
+
+                //RemoveOneLineOperators();
+            }
         }
 
         bool RemoveElseFromIfOperators(ref string filecodeText)
         {
             Regex elsePattern = new Regex(@"\belse(\s)+[{]{1}");
             Match elseMatch = elsePattern.Match(filecodeText);
-            int i;
             if (elseMatch.Success)
             {
                 string temp = elseMatch.Value;
                 filecodeText = filecodeText.Remove(elseMatch.Index, temp.Length);
-                filecodeText = filecodeText.Insert(elseMatch.Index, "if( )\r\n{");
+                filecodeText = filecodeText.Insert(elseMatch.Index, "fif( )\r\n{");
             }
             return elseMatch.Success;
         }
@@ -112,11 +261,6 @@ namespace Lab
                 SolveTaskForSwitch(ref filecodeText, level);
                 return;
             }
-            //if (closestPattern == @"\bif(\s)*[(]{1}")
-            //{
-            //    SolveTaskForIf(ref filecodeText, level);
-            //    return;
-            //}
             Regex IfPattern = new Regex(closestPattern);
             Match ifMatch = IfPattern.Match(filecodeText);
 
@@ -216,12 +360,12 @@ namespace Lab
             }
             int whenBlockEnd = i - 2;
 
-            Regex casePattern = new Regex(@"->(\s)*[{]{1}");
+            Regex casePattern = new Regex(@"->(\s)+[{]{1}");
             string whenBlock = filecodeText.Substring(whenBlockStart,whenBlockEnd - whenBlockStart - 1);
             MatchCollection matches = casePattern.Matches(whenBlock);
             int j = 1;
             int amountOfCases = matches.Count;
-            Regex elseCase = new Regex(@"\belse(\s)+->(\s)*[{]{1}");
+            Regex elseCase = new Regex(@"\bfelse(\s)+->(\s)*[{]{1}");
             if (elseCase.Match(whenBlock).Success) amountOfCases--;//последний else не считается
             foreach (Match cur in matches) 
             {
@@ -250,7 +394,7 @@ namespace Lab
         {
             int i = filecodeText.Length + 1;
             string output = "None";
-            string[] patterns = { @"\bif(\s)*[(]{1}", @"\bfor(\s)*[(]{1}", @"\bwhile(\s)*[(]{1}", @"\bdoWhile(\s)*[(]{1}", @"\bwhen(\s)*[(]{1}" };
+            string[] patterns = { @"\bif(\s)*[(]{1}", @"\bfif(\s)*[(]{1}", @"\bfor(\s)*[(]{1}", @"\bwhile(\s)*[(]{1}", @"\bdoWhile(\s)*[(]{1}", @"\bwhen(\s)*[(]{1}" };
             for(int j = 0; j < patterns.Length; j++)
             {
                 Regex pattern = new Regex(patterns[j]);

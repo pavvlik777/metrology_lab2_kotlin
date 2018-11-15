@@ -8,3 +8,6 @@ E:\Projects\metrology_lab2_kotlin\Lab\Lab\obj\Debug\Lab.csproj.GenerateResource.
 E:\Projects\metrology_lab2_kotlin\Lab\Lab\obj\Debug\Lab.csproj.CoreCompileInputs.cache
 E:\Projects\metrology_lab2_kotlin\Lab\Lab\obj\Debug\Lab.exe
 E:\Projects\metrology_lab2_kotlin\Lab\Lab\obj\Debug\Lab.pdb
+E:\Projects\metrology_lab2_kotlin\Lab\Lab\bin\Debug\System.ValueTuple.dll
+E:\Projects\metrology_lab2_kotlin\Lab\Lab\bin\Debug\System.ValueTuple.xml
+E:\Projects\metrology_lab2_kotlin\Lab\Lab\obj\Debug\Lab.csproj.CopyComplete
