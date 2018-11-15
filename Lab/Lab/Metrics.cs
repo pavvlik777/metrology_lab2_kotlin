@@ -34,7 +34,7 @@ namespace Lab
             }
             CreateFilecodeList(filecodeText);
             FilecodeText = filecodeText;
-            RemoveDoWhileOperators(ref filecodeText);
+            while(RemoveDoWhileOperators(ref filecodeText));
             RemoveOneLineOperators(ref filecodeText);
             //SolveTask(ref filecodeText, -1);
             if (maxLevel == -1) maxLevel = 0;
@@ -46,9 +46,44 @@ namespace Lab
 
         }
 
-        void RemoveDoWhileOperators(ref string filecodeText)
+        bool RemoveDoWhileOperators(ref string filecodeText)
         {
+            Regex doPattern = new Regex(@"\bdo(\s)*[{]{1}");
+            Match doMatch = doPattern.Match(filecodeText);
+            int i;
+            if(doMatch.Success)
+            {
+                string temp1 = doMatch.Value;
+                int doLeftParentess = 1;
+                int doRightParentess = 0;
+                i = doMatch.Index + temp1.Length;
+                while (doLeftParentess != doRightParentess)
+                {
+                    if (filecodeText[i] == '{') doLeftParentess++;
+                    if (filecodeText[i] == '}') doRightParentess++;
+                    i++;
+                }
+                int doBlockStart = i;
 
+                Regex whilePattern = new Regex(@"\bwhile(\s)*[(]{1}");
+                Match whileMatch = whilePattern.Match(filecodeText, doBlockStart);
+                string temp2 = whileMatch.Value;
+                int whileLeftParentess = 1;
+                int whileRightParentess = 0;
+                i = whileMatch.Index + temp2.Length;
+                while (whileLeftParentess != whileRightParentess)
+                {
+                    if (filecodeText[i] == '(') whileLeftParentess++;
+                    if (filecodeText[i] == ')') whileRightParentess++;
+                    i++;
+                }
+                string whilePart = filecodeText.Substring(whileMatch.Index, i - whileMatch.Index);
+                whilePart = whilePart.Remove(0, 1);
+                whilePart = whilePart.Insert(0, "W");
+                filecodeText = filecodeText.Remove(whileMatch.Index, i - whileMatch.Index);
+                filecodeText = filecodeText.Insert(doMatch.Index + 2, whilePart);
+            }
+            return doMatch.Success;
         }
 
         public void SolveTask(ref string filecodeText, int level)
@@ -115,34 +150,18 @@ namespace Lab
         {
             int i = filecodeText.Length + 1;
             string output = "None";
-            Regex ifPattern = new Regex(@"\bif(\s)*[(]{1}");
-            Match match = ifPattern.Match(filecodeText);
-            if (match.Success)
+            string[] patterns = { @"\bif(\s)*[(]{1}", @"\bfor(\s)*[(]{1}", @"\bwhile(\s)*[(]{1}", @"\bdoWhile(\s)*[(]{1}" };
+            for(int j = 0; j < patterns.Length; j++)
             {
-                if(i > match.Index)
+                Regex pattern = new Regex(patterns[j]);
+                Match match = pattern.Match(filecodeText);
+                if (match.Success)
                 {
-                    i = match.Index;
-                    output = @"\bif(\s)*[(]{1}";
-                }
-            }
-            Regex forPattern = new Regex(@"\bfor(\s)*[(]{1}");
-            match = forPattern.Match(filecodeText);
-            if (match.Success)
-            {
-                if (i > match.Index)
-                {
-                    i = match.Index;
-                    output = @"\bfor(\s)*[(]{1}";
-                }
-            }
-            Regex whilePattern = new Regex(@"\bwhile(\s)*[(]{1}");
-            match = whilePattern.Match(filecodeText);
-            if (match.Success)
-            {
-                if (i > match.Index)
-                {
-                    i = match.Index;
-                    output = @"\bwhile(\s)*[(]{1}";
+                    if (i > match.Index)
+                    {
+                        i = match.Index;
+                        output = patterns[j];
+                    }
                 }
             }
             return output;
