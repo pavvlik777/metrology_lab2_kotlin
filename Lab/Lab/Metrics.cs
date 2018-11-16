@@ -53,11 +53,19 @@ namespace Lab
             {
                 Regex pattern = new Regex(@"\belse(\s)+->");
                 filecodeText = pattern.Replace(filecodeText, "felse ->");
+                pattern = new Regex(@"}(\s)+else(\s)+{");
+                filecodeText = pattern.Replace(filecodeText, "☼");
+                pattern = new Regex(@"}(\s)+else(\s)+");
+                filecodeText = pattern.Replace(filecodeText, "☼");
+                pattern = new Regex(@"(\s)+else(\s)+");
+                filecodeText = pattern.Replace(filecodeText, "☼");
             }
             else
             {
                 Regex pattern = new Regex(@"\bfelse(\s)+->");
                 filecodeText = pattern.Replace(filecodeText, "else ->");
+                pattern = new Regex(@"☼");
+                filecodeText = pattern.Replace(filecodeText, "\r\n}\r\nelse\r\n{\r\n");
             }
         }
 
@@ -161,7 +169,38 @@ namespace Lab
                         }
                         else
                         {
-                            i++;
+                            //проверка на то однолинейный ли оператор
+                            Regex onelinePattern = new Regex(onelineData.pattern);
+                            Match matchOneline = onelinePattern.Match(filecodeText, startLine);
+                            string multiLineOperator = matchOneline.Value;
+                            int k = multiLineOperator.Length + matchOneline.Index;
+                            if(onelineData.isNeedParentess)
+                            {
+                                int leftParentess = 1;
+                                int rightParentess = 0;
+                                while (leftParentess != rightParentess)
+                                {
+                                    if (filecodeText[k] == '(') leftParentess++;
+                                    if (filecodeText[k] == ')') rightParentess++;
+                                    k++;
+                                }
+                            }
+                            (bool, int) dataMultiLine = IsThisOperatorOneLine(ref filecodeText, k);
+                            if(!dataMultiLine.Item1)
+                            {
+                                k = dataMultiLine.Item2;
+                                k++;
+                                int leftParentess = 1;
+                                int rightParentess = 0;
+                                while (leftParentess != rightParentess)
+                                {
+                                    if (filecodeText[k] == '{') leftParentess++;
+                                    if (filecodeText[k] == '}') rightParentess++;
+                                    k++;
+                                }
+                                i = k;
+                            }
+                            //else i++;
                         }
                     }
                     filecodeText = filecodeText.Insert(operatorEnd, "\r\n{");
