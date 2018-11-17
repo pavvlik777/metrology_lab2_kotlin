@@ -31,9 +31,11 @@
             this.OpenFileButton = new System.Windows.Forms.Button();
             this.AbsolDiffButton = new System.Windows.Forms.Button();
             this.RelatDiffButton = new System.Windows.Forms.Button();
-            this.MaxNesting = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.FileCodeTextBox = new System.Windows.Forms.TextBox();
+            this.OutputBox = new System.Windows.Forms.TextBox();
+            this.MaxNesting = new System.Windows.Forms.Button();
+            this.withCycles = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // OpenFileButton
@@ -66,16 +68,6 @@
             this.RelatDiffButton.UseVisualStyleBackColor = true;
             this.RelatDiffButton.Click += new System.EventHandler(this.RelatDiffButton_Click);
             // 
-            // MaxNesting
-            // 
-            this.MaxNesting.Location = new System.Drawing.Point(715, 13);
-            this.MaxNesting.Name = "MaxNesting";
-            this.MaxNesting.Size = new System.Drawing.Size(172, 23);
-            this.MaxNesting.TabIndex = 3;
-            this.MaxNesting.Text = "Максимальная вложенность";
-            this.MaxNesting.UseVisualStyleBackColor = true;
-            this.MaxNesting.Click += new System.EventHandler(this.MaxNesting_Click);
-            // 
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
@@ -90,11 +82,42 @@
             this.FileCodeTextBox.Size = new System.Drawing.Size(610, 475);
             this.FileCodeTextBox.TabIndex = 5;
             // 
+            // OutputBox
+            // 
+            this.OutputBox.Location = new System.Drawing.Point(937, 68);
+            this.OutputBox.Multiline = true;
+            this.OutputBox.Name = "OutputBox";
+            this.OutputBox.ReadOnly = true;
+            this.OutputBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.OutputBox.Size = new System.Drawing.Size(414, 475);
+            this.OutputBox.TabIndex = 6;
+            // 
+            // MaxNesting
+            // 
+            this.MaxNesting.Location = new System.Drawing.Point(715, 13);
+            this.MaxNesting.Name = "MaxNesting";
+            this.MaxNesting.Size = new System.Drawing.Size(172, 23);
+            this.MaxNesting.TabIndex = 3;
+            this.MaxNesting.Text = "Максимальная вложенность";
+            this.MaxNesting.UseVisualStyleBackColor = true;
+            this.MaxNesting.Click += new System.EventHandler(this.MaxNesting_Click);
+            // 
+            // withCycles
+            // 
+            this.withCycles.AutoSize = true;
+            this.withCycles.Location = new System.Drawing.Point(1025, 18);
+            this.withCycles.Name = "withCycles";
+            this.withCycles.Size = new System.Drawing.Size(15, 14);
+            this.withCycles.TabIndex = 7;
+            this.withCycles.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1492, 611);
+            this.Controls.Add(this.withCycles);
+            this.Controls.Add(this.OutputBox);
             this.Controls.Add(this.FileCodeTextBox);
             this.Controls.Add(this.MaxNesting);
             this.Controls.Add(this.RelatDiffButton);
@@ -112,9 +135,11 @@
         private System.Windows.Forms.Button OpenFileButton;
         private System.Windows.Forms.Button AbsolDiffButton;
         private System.Windows.Forms.Button RelatDiffButton;
-        private System.Windows.Forms.Button MaxNesting;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.TextBox FileCodeTextBox;
+        private System.Windows.Forms.TextBox OutputBox;
+        private System.Windows.Forms.Button MaxNesting;
+        private System.Windows.Forms.CheckBox withCycles;
     }
 }
 

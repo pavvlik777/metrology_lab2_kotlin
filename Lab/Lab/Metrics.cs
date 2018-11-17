@@ -10,18 +10,16 @@ namespace Lab
 {
     public class Metrics
     {
-        List<string> fileCode;
-        string FilecodeText;
-
         public Metrics()
         {
-            fileCode = new List<string>() { };
-            FilecodeText = "";
+
         }
 
         bool multilineComment = false;
         int maxLevel = -1;
-        public string FixFileCode(string readPath)
+        int absolutDifficulty = 0;
+        int allOperators = 0;
+        public int FindMaxNestingLevel(string readPath)
         {
             string filecodeText = "";
             using (StreamReader sr = File.OpenText(readPath))
@@ -33,18 +31,76 @@ namespace Lab
                 }
             }
             filecodeText += "\r\n";
-            CreateFilecodeList(filecodeText);
-            FilecodeText = filecodeText;
             ReplaceWhenElse(ref filecodeText, true);
 
             RemoveOneLineOperators(ref filecodeText);
-            ReplaceWhenElse(ref filecodeText, false);
+            //ReplaceWhenElse(ref filecodeText, false);
 
             while (RemoveElseFromIfOperators(ref filecodeText)) ;
             while (RemoveDoWhileOperators(ref filecodeText));
-            //SolveTask(ref filecodeText, -1);
+            SolveTask(ref filecodeText, -1);
             if (maxLevel == -1) maxLevel = 0;
-            return filecodeText;
+            return maxLevel;
+        }
+
+        bool needToCountForWhiles = false;
+        public int FindAbsolutDiff(string readPath, bool countForWhiles)
+        {
+            needToCountForWhiles = countForWhiles;
+            string filecodeText = "";
+            using (StreamReader sr = File.OpenText(readPath))
+            {
+                string cur;
+                while ((cur = sr.ReadLine()) != null)
+                {
+                    InputTestLine(ref filecodeText, cur);
+                }
+            }
+            filecodeText += "\r\n";
+            ReplaceWhenElse(ref filecodeText, true);
+
+            RemoveOneLineOperators(ref filecodeText);
+            //ReplaceWhenElse(ref filecodeText, false);
+
+            while (RemoveElseFromIfOperators(ref filecodeText)) ;
+            while (RemoveDoWhileOperators(ref filecodeText)) ;
+            SolveTask(ref filecodeText, -1);
+            return absolutDifficulty;
+        }
+
+        public double FindRelativeDiff(string readPath, bool countForWhiles)
+        {
+            needToCountForWhiles = countForWhiles;
+            string filecodeText = "";
+            using (StreamReader sr = File.OpenText(readPath))
+            {
+                string cur;
+                while ((cur = sr.ReadLine()) != null)
+                {
+                    InputTestLine(ref filecodeText, cur);
+                }
+            }
+            filecodeText += "\r\n";
+            ReplaceWhenElse(ref filecodeText, true);
+
+            RemoveOneLineOperators(ref filecodeText);
+            //ReplaceWhenElse(ref filecodeText, false);
+
+            while (RemoveElseFromIfOperators(ref filecodeText)) ;
+            while (RemoveDoWhileOperators(ref filecodeText)) ;
+            SolveTask(ref filecodeText, -1);
+            CountOperators(filecodeText);
+            return absolutDifficulty/(double)allOperators;
+        }
+
+        void CountOperators(string filecodeText)
+        {
+            string[] operators = { };
+            for(int i = 0; i < operators.Length; i++)
+            {
+                Regex pattern = new Regex(operators[i]);
+                allOperators += pattern.Matches(filecodeText).Count;
+            }
         }
 
         void ReplaceWhenElse(ref string filecodeText, bool mode)
@@ -230,8 +286,6 @@ namespace Lab
                     filecodeText = filecodeText.Insert(operatorEnd, otherLine);
                 }
 
-
-
                 //RemoveOneLineOperators();
             }
         }
@@ -302,6 +356,13 @@ namespace Lab
             }
             Regex IfPattern = new Regex(closestPattern);
             Match ifMatch = IfPattern.Match(filecodeText);
+            if (!needToCountForWhiles)
+            {
+                if (closestPattern != @"\bfor(\s)*[(]{1}" && closestPattern != @"\bwhile(\s)*[(]{1}" && closestPattern != @"\bdoWhile(\s)*[(]{1}")
+                    absolutDifficulty++;
+            }
+            else absolutDifficulty++;
+            allOperators++;
 
             string temp = ifMatch.Value;
             int leftParentess = 1;
@@ -349,34 +410,6 @@ namespace Lab
             SolveTask(ref notIfPart, level);
         }
 
-        void SolveTaskForIf(ref string filecodeText, int level)
-        {
-            Regex ifPattern = new Regex(@"\bif(\s)*[(]{1}");
-            Match ifMatch = ifPattern.Match(filecodeText);
-            int i;
-
-            string temp = ifMatch.Value;
-            i = ifMatch.Index + temp.Length;
-            while (filecodeText[i] != '{') i++;
-            i++;
-
-            int ifBlockStart = i;
-            int figureParentIfLeft = 1;
-            int figureParentIfRight = 0;
-            while (figureParentIfLeft != figureParentIfRight)
-            {
-                if (filecodeText[i] == '{') figureParentIfLeft++;
-                if (filecodeText[i] == '}') figureParentIfRight++;
-                i++;
-            }
-            int ifBlockEnd = i - 2;
-            string ifBlock = filecodeText.Substring(ifBlockStart, ifBlockEnd - ifBlockStart - 1);
-            SolveTask(ref ifBlock, level + 1);
-
-            string notIfPart = filecodeText.Substring(i);
-            SolveTask(ref notIfPart, level);
-        }
-
         void SolveTaskForSwitch(ref string filecodeText, int level)
         {
             Regex whenPattern = new Regex(@"\bwhen(\s)*[(]{1}");
@@ -387,6 +420,8 @@ namespace Lab
             i = whenMatch.Index + temp.Length;
             while (filecodeText[i] != '{') i++;
             i++;
+
+            //allOperators += amountOfCases;
 
             int whenBlockStart = i;
             int figureParentWhenLeft = 1;
@@ -406,6 +441,8 @@ namespace Lab
             int amountOfCases = matches.Count;
             Regex elseCase = new Regex(@"\bfelse(\s)+->(\s)*[{]{1}");
             if (elseCase.Match(whenBlock).Success) amountOfCases--;//последний else не считается
+            absolutDifficulty += amountOfCases;
+            allOperators += amountOfCases;
             foreach (Match cur in matches) 
             {
                 string caseTemp = cur.Value;
@@ -448,20 +485,6 @@ namespace Lab
                 }
             }
             return output;
-        }
-
-        void CreateFilecodeList(string filecodeText)
-        {
-            int index = filecodeText.IndexOf("\r\n");
-            if (index != -1)
-            {
-                fileCode.Add(filecodeText.Substring(0, index));
-                CreateFilecodeList(filecodeText.Substring(index + 2));
-            }
-            else
-            {
-                fileCode.Add(filecodeText);
-            }
         }
 
         void InputTestLine(ref string filecodeText, string cur)

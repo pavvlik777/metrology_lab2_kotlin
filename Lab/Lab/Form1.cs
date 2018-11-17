@@ -76,8 +76,6 @@ namespace Lab
                     string fileCode = sr.ReadToEnd();
                     FileCodeTextBox.Text = fileCode;
                 }
-                Metrics metrics = new Metrics();
-                FileCodeTextBox.Text = metrics.FixFileCode(FileName);
             }
             else
             {
@@ -89,17 +87,26 @@ namespace Lab
 
         private void AbsolDiffButton_Click(object sender, EventArgs e)
         {
-
+            if (FileName == "None") return;
+            Metrics metrics = new Metrics();
+            int absolDiff = metrics.FindAbsolutDiff(FileName, withCycles.Checked);
+            OutputBox.Text = $"Абсолютная сложность - {absolDiff}";
         }
 
         private void RelatDiffButton_Click(object sender, EventArgs e)
         {
-
+            if (FileName == "None") return;
+            Metrics metrics = new Metrics();
+            double relativeDiff = metrics.FindRelativeDiff(FileName, withCycles.Checked);
+            OutputBox.Text = $"Относительная сложность - {relativeDiff}";
         }
 
         private void MaxNesting_Click(object sender, EventArgs e)
         {
-
+            if (FileName == "None") return;
+            Metrics metrics = new Metrics();
+            int maxLevel = metrics.FindMaxNestingLevel(FileName);
+            OutputBox.Text = $"Максимальный уровень вложенности - {maxLevel}";
         }
     }
 }
