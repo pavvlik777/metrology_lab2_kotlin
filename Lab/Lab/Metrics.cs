@@ -89,17 +89,29 @@ namespace Lab
             while (RemoveElseFromIfOperators(ref filecodeText)) ;
             while (RemoveDoWhileOperators(ref filecodeText)) ;
             SolveTask(ref filecodeText, -1);
-            CountOperators(filecodeText);
+            CountOperators(ref filecodeText);
             return absolutDifficulty/(double)allOperators;
         }
 
-        void CountOperators(string filecodeText)
+        void CountOperators(ref string filecodeText)
         {
-            string[] operators = { };
+            string[] operators = { @"\bas\b", @"\bas[?]{1}\b", @"\bbreak\b", @"\bclass\b", @"\bcontinue\b", @"\bfun\b", @"\bin\b", @"\b[!]{1}in\b", @"\binterface\b", @"\bis\b", @"\b[!]{1}is\b",
+                @"\breturn\b", @"\bvar\b", @"\bval\b",
+            @"([\+]{1}[=]{1})|([-]{1}[=]{1})|([\*]{1}[=]{1})|([/]{1}[=]{1})|([%]{1}[=]{1})",
+            @"(===)|(!==)",
+            @"(&&)|([\|]{2})",
+            @"(==)|(!=)|(>=)|(<=)|(>)|(<)",
+            @"([.]{2})",
+            @"([\:]{1})",
+            @"([\+]{2})|([-]{2})",
+            @"[.]{1}",
+            @"([\+]{1})|([-]{1})|([\*]{1})|([/]{1})|([%]{1)}|([=]{1})|([!]{1})",
+            @"[;]{1}" };
             for(int i = 0; i < operators.Length; i++)
             {
                 Regex pattern = new Regex(operators[i]);
                 allOperators += pattern.Matches(filecodeText).Count;
+                filecodeText = pattern.Replace(filecodeText, "");
             }
         }
 
@@ -421,7 +433,7 @@ namespace Lab
             while (filecodeText[i] != '{') i++;
             i++;
 
-            //allOperators += amountOfCases;
+            allOperators++;
 
             int whenBlockStart = i;
             int figureParentWhenLeft = 1;
@@ -442,7 +454,7 @@ namespace Lab
             Regex elseCase = new Regex(@"\bfelse(\s)+->(\s)*[{]{1}");
             if (elseCase.Match(whenBlock).Success) amountOfCases--;//последний else не считается
             absolutDifficulty += amountOfCases;
-            allOperators += amountOfCases;
+            //allOperators += amountOfCases;
             foreach (Match cur in matches) 
             {
                 string caseTemp = cur.Value;
