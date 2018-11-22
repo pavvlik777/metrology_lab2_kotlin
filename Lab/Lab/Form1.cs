@@ -89,7 +89,7 @@ namespace Lab
         {
             if (FileName == "None") return;
             Metrics metrics = new Metrics();
-            int absolDiff = metrics.FindAbsolutDiff(FileName, withCycles.Checked);
+            int absolDiff = metrics.FindAbsolutDiff(FileName, true);
             OutputBox.Text = $"Абсолютная сложность - {absolDiff}";
         }
 
@@ -97,7 +97,7 @@ namespace Lab
         {
             if (FileName == "None") return;
             Metrics metrics = new Metrics();
-            double relativeDiff = metrics.FindRelativeDiff(FileName, withCycles.Checked);
+            double relativeDiff = metrics.FindRelativeDiff(FileName, true);
             OutputBox.Text = $"Относительная сложность - {relativeDiff}";
         }
 
